@@ -7,7 +7,8 @@ import restaurant.entities.tables.interfaces.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static restaurant.common.ExceptionMessages.*;
+import static restaurant.common.ExceptionMessages.INVALID_NUMBER_OF_PEOPLE;
+import static restaurant.common.ExceptionMessages.INVALID_TABLE_SIZE;
 
 public abstract class BaseTable implements Table {
 
@@ -25,7 +26,7 @@ public abstract class BaseTable implements Table {
         this.beverages = new ArrayList<>();
         this.number = number;
         setSize(size);
-        setNumberOfPeople(numberOfPeople);
+        this.numberOfPeople = numberOfPeople;
         this.pricePerPerson = pricePerPerson;
         this.isReservedTable = false;
         this.allPeople = allPeople;
@@ -38,12 +39,6 @@ public abstract class BaseTable implements Table {
         this.size = size;
     }
 
-    public void setNumberOfPeople(int numberOfPeople) {
-        if (numberOfPeople <= 0) {
-            throw new IllegalArgumentException(INVALID_NUMBER_OF_PEOPLE);
-        }
-        this.numberOfPeople = numberOfPeople;
-    }
 
     @Override
     public int getTableNumber() {
@@ -77,22 +72,35 @@ public abstract class BaseTable implements Table {
 
     @Override
     public void reserve(int numberOfPeople) {
-
+        if (numberOfPeople <= 0) {
+            throw new IllegalArgumentException(INVALID_NUMBER_OF_PEOPLE);
+        }
+        isReservedTable = true;
+        this.numberOfPeople = numberOfPeople;
     }
 
     @Override
     public void orderHealthy(HealthyFood food) {
-
+        healthyFood.add(food);
     }
 
     @Override
     public void orderBeverages(Beverages beverages) {
-
+        this.beverages.add(beverages);
     }
 
     @Override
     public double bill() {
-        return 0;
+        double totalBill = 0;
+        for (HealthyFood food : healthyFood) {
+           totalBill+= food.getPrice();
+        }
+        for (Beverages beverages1 : beverages) {
+            totalBill += beverages1.getPrice();
+        }
+        totalBill += numberOfPeople * pricePerPerson;
+
+        return totalBill;
     }
 
     @Override
