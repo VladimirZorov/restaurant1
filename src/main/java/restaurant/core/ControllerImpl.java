@@ -41,7 +41,7 @@ public class ControllerImpl implements Controller {
         }
         for (HealthyFood food1 : healthFoodRepository.getAllEntities()) {
             if (food1.equals(food)) {
-                throw new IllegalArgumentException(String.format(FOOD_EXIST, name));
+                return String.format(FOOD_EXIST, name);
             }
         }
         healthFoodRepository.add(food);
@@ -76,13 +76,17 @@ public class ControllerImpl implements Controller {
             table = new Indoors(tableNumber, capacity);
         }
 
-        for (Table table1 : tableRepository.getAllEntities()) {
-            if (table1.equals(table)) {
-                throw new IllegalArgumentException(String.format(TABLE_EXIST, tableNumber));
-            }
+        Table table1 = tableRepository.getAllEntities().stream()
+                .filter(table2 -> table2.getTableNumber()==tableNumber)
+                .findFirst().orElse(null);
+
+        if (table1 == null) {
+            tableRepository.add(table);
+            return String.format(TABLE_ADDED, tableNumber);
+        } else {
+           throw new IllegalArgumentException(String.format(TABLE_EXIST, tableNumber));
         }
-        tableRepository.add(table);
-        return String.format(TABLE_ADDED, tableNumber);
+
     }
 
     @Override
@@ -140,16 +144,14 @@ public class ControllerImpl implements Controller {
     }
 
     @Override
-    public double closedBill(int tableNumber) {
+    public String closedBill(int tableNumber) {
         Table tableToBill = tableRepository.getAllEntities().stream()
                 .filter(table -> table.getTableNumber() == tableNumber)
                 .findFirst().orElse(null);
 
-        if (tableToBill != null) {
-            return tableToBill.bill();
-        }
-        //TODO:
-        return null;
+        tableToBill.clear();
+        return String.format(BILL, tableNumber, tableToBill.bill());
+
     }
 
 

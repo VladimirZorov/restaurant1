@@ -67,7 +67,7 @@ public abstract class BaseTable implements Table {
 
     @Override
     public double allPeople() {
-        return 0;
+        return numberOfPeople * pricePerPerson;
     }
 
     @Override
@@ -105,6 +105,10 @@ public abstract class BaseTable implements Table {
 
     @Override
     public void clear() {
+        healthyFood.clear();
+        beverages.clear();
+        isReservedTable = false;
+        numberOfPeople = 0;
 
     }
 
